@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ChatbotTFG</string>
+    <string name="chat_message_input">Escribir mensaje</string>
+</resources>
