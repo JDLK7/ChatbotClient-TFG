@@ -3,7 +3,6 @@ package com.jdlk7.chatbottfg;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -33,6 +32,7 @@ import android.widget.TextView;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.RequestFuture;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -52,16 +52,19 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+
+    /**
+     * Instancia de SharedPreference.
+     */
+    private SharedPrefManager sharedPrefManager;
+
+    /**
+     * Instancia de VolleySingleton.
+     */
+    private VolleySingleton volleySingleton;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -99,6 +102,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        /**
+         * Se obtiene la instancia de los Singleton en el contexto actual.
+         */
+        volleySingleton = VolleySingleton.getInstance(this);
+        sharedPrefManager = SharedPrefManager.getInstance(this);
     }
 
     private void populateAutoComplete() {
@@ -192,7 +201,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(this, email, password);
+            mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -303,31 +312,41 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         private final String mEmail;
         private final String mPassword;
-        private final Context mContext;
 
-        UserLoginTask(Context context, String email, String password) {
-            mContext = context;
+        UserLoginTask(String email, String password) {
             mEmail = email;
             mPassword = password;
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
+            Boolean isValidLogin = false;
+
+            JSONObject requestData = new JSONObject();
+            try {
+                requestData.put("email", mEmail).put("password", mPassword);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             RequestFuture<JSONObject> future = RequestFuture.newFuture();
-            JsonObjectRequest request = new JsonObjectRequest("chatbot-tfg.loc/api/auth/login", new JSONObject(), future, future);
-            VolleySingleton.getInstance(mContext).addToRequestQueue(request);
+            JsonObjectRequest request = new JsonObjectRequest("http://192.168.42.94:8000/api/auth/login", requestData, future, future);
+            volleySingleton.addToRequestQueue(request);
 
             try {
                 // Operación síncrona
                 JSONObject response = future.get();
-                return response.has("access_token");
+                isValidLogin = response.has("access_token");
+                sharedPrefManager.put(SharedPrefManager.Key.ACCESS_TOKEN, response.getString("access_token"));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {
                 e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
-            return false;
+            return isValidLogin;
         }
 
         @Override
