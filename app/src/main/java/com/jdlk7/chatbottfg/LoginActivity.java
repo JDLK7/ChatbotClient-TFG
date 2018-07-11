@@ -49,6 +49,11 @@ import static android.Manifest.permission.READ_CONTACTS;
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
+     * La url base del servicio web.
+     */
+    private String baseUrl;
+
+    /**
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
@@ -78,6 +83,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        /**
+         * Se guarda la url base.
+         */
+        baseUrl = getResources().getString(R.string.base_url);
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -334,7 +345,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             RequestFuture<JSONObject> future = RequestFuture.newFuture();
-            JsonObjectRequest request = new JsonObjectRequest("http://192.168.42.94:8000/api/auth/login", requestData, future, future);
+            JsonObjectRequest request = new JsonObjectRequest(baseUrl + "/api/auth/login", requestData, future, future);
             volleySingleton.addToRequestQueue(request);
 
             try {
