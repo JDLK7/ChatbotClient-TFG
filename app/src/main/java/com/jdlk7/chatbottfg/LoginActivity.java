@@ -3,6 +3,8 @@ package com.jdlk7.chatbottfg;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -201,7 +203,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask = new UserLoginTask(this, email, password);
             mAuthTask.execute((Void) null);
         }
     }
@@ -310,10 +312,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
+        private final Context mContext;
         private final String mEmail;
         private final String mPassword;
 
-        UserLoginTask(String email, String password) {
+        UserLoginTask(Context context, String email, String password) {
+            mContext = context;
             mEmail = email;
             mPassword = password;
         }
@@ -355,6 +359,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
+                startActivity(new Intent(mContext, ChatActivity.class));
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
