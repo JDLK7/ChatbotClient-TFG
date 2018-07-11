@@ -353,6 +353,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 JSONObject response = future.get();
                 isValidLogin = response.has("access_token");
                 sharedPrefManager.put(SharedPrefManager.Key.ACCESS_TOKEN, response.getString("access_token"));
+                sharedPrefManager.put(SharedPrefManager.Key.USER, response.getString("user"));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } catch (ExecutionException e) {

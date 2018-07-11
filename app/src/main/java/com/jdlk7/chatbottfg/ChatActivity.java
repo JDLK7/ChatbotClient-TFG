@@ -40,7 +40,15 @@ public class ChatActivity extends AppCompatActivity {
     private MessageListAdapter messageListAdapter;
     private List<Message> messageList;
 
+    /**
+     * Instancia de VolleySingleton.
+     */
     private VolleySingleton volleySingleton;
+
+    /**
+     * Instancia de LoginData.
+     */
+    private LoginData loginData;
 
     EditText editText;
     RelativeLayout addBtn;
@@ -129,6 +137,7 @@ public class ChatActivity extends AppCompatActivity {
          * Se obtiene la instancia de los Singleton en el contexto actual.
          */
         volleySingleton = VolleySingleton.getInstance(this);
+        loginData = LoginData.getInstance(this);
     }
 
     /**
@@ -141,6 +150,7 @@ public class ChatActivity extends AppCompatActivity {
 
         HashMap<String, String> requestParams = new HashMap<String, String>();
         requestParams.put("driver", "web");
+        requestParams.put("userId", loginData.getUser().getId());
         requestParams.put("message", message.getMessage());
 
         JsonObjectRequest request = new JsonObjectRequest(baseUrl + "/botman", new JSONObject(requestParams),

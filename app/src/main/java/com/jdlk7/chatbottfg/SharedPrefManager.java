@@ -45,6 +45,7 @@ public class SharedPrefManager {
          * String: SAMPLE_KEY, SAMPLE_STR or just SAMPLE
          */
         ACCESS_TOKEN,
+        USER,
     }
 
     private SharedPrefManager(Context context) {
