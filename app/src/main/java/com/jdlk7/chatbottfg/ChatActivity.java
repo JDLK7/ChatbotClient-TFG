@@ -1,8 +1,12 @@
 package com.jdlk7.chatbottfg;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,12 +32,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+
 public class ChatActivity extends AppCompatActivity {
 
     /**
      * La url base del servicio web.
      */
     private String baseUrl;
+
+    /**
+     * Id to identity ACCESS_FINE_LOCATION permission request.
+     */
+    private static final int REQUEST_LOCATION = 7;
 
     // Listado con scroll
     private RecyclerView recyclerView;
@@ -53,6 +65,19 @@ public class ChatActivity extends AppCompatActivity {
     EditText editText;
     RelativeLayout addBtn;
     Boolean flagFab = true;
+
+    private boolean mayRequestLocation() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return true;
+        }
+        if (checkSelfPermission(ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+
+        requestPermissions(new String[]{ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION}, REQUEST_LOCATION);
+
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +163,8 @@ public class ChatActivity extends AppCompatActivity {
          */
         volleySingleton = VolleySingleton.getInstance(this);
         loginData = LoginData.getInstance(this);
+
+        mayRequestLocation();
     }
 
     /**
