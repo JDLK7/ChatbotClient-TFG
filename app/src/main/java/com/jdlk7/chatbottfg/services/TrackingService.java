@@ -8,7 +8,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.android.volley.Request;
@@ -166,12 +165,12 @@ public class TrackingService extends Service {
             Log.d(TAG, "gps provider does not exist " + ex.getMessage());
         }
 
-        Notification notification = new NotificationCompat.Builder(this, "TRACKING_CHANNEL")
-                .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("Buscando puntos cerca de ti...")
-                .setContentText("Toca para abrir el mapa")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setOngoing(true)
+        Notification notification = notificationHandler.makeSimpleNotificationBuilder(
+                this,
+                "Buscando puntos cerca de ti...",
+                "Toca para abrir el mapa",
+                getString(R.string.channel_id),
+                true)
                 .build();
 
         startForeground(101, notification);
