@@ -1,6 +1,7 @@
 package com.jdlk7.chatbottfg.services;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -8,13 +9,13 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.jdlk7.chatbottfg.ChatActivity;
 import com.jdlk7.chatbottfg.NotificationHandler;
 import com.jdlk7.chatbottfg.R;
 import com.jdlk7.chatbottfg.SharedPrefManager;
@@ -71,11 +72,26 @@ public class TrackingService extends Service {
                         if (success) {
                             JSONObject point = response.getJSONObject("point");
 
-                            notificationHandler.createSimpleNotification(
-                                    getApplicationContext(),
+                            Context context = getApplicationContext();
+                            Intent intent = new Intent(context, ChatActivity.class);
+                            intent.putExtra("hiddenMessage", "point_found");
+                            intent.putExtra("pointType", point.getString("type"));
+
+                            PendingIntent pendingIntent = PendingIntent.getActivity(context,
+                                    0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                            Notification notification = notificationHandler.makeSimpleNotificationBuilder(
+                                    context,
                                     "Punto encontrado",
                                     "Toca para empezar conversación",
-                                    "TRACKING_CHANNEL");
+                                    getString(R.string.channel_id),
+                                    false
+                            )
+                                    .setContentIntent(pendingIntent)
+                                    .setAutoCancel(true)
+                                    .build();
+
+                            notificationHandler.notify(notification);
                         }
 
                     } catch (JSONException e) {
@@ -166,12 +182,12 @@ public class TrackingService extends Service {
             Log.d(TAG, "gps provider does not exist " + ex.getMessage());
         }
 
-        Notification notification = new NotificationCompat.Builder(this, "TRACKING_CHANNEL")
-                .setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("Buscando puntos cerca de ti...")
-                .setContentText("Toca para abrir el mapa")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setOngoing(true)
+        Notification notification = notificationHandler.makeSimpleNotificationBuilder(
+                this,
+                "Buscando puntos cerca de ti...",
+                "Toca para abrir el mapa",
+                getString(R.string.channel_id),
+                true)
                 .build();
 
         startForeground(101, notification);

@@ -1,12 +1,11 @@
 package com.jdlk7.chatbottfg;
 
-import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +18,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -52,10 +53,8 @@ public class ChatActivity extends AppCompatActivity {
     private MessageListAdapter messageListAdapter;
     private List<Message> messageList;
 
-    /**
-     * Instancia de VolleySingleton.
-     */
     private VolleySingleton volleySingleton;
+    private SharedPrefManager sharedPrefManager;
 
     /**
      * Instancia de LoginData.
@@ -123,7 +122,7 @@ public class ChatActivity extends AppCompatActivity {
                 String message = editText.getText().toString().trim();
 
                 if (!message.equals("")) {
-                    sendMessage(new Message(message, true));
+                    sendMessage(new Message(message, true), true, null);
                 }
 
                 editText.setText("");
@@ -161,10 +160,31 @@ public class ChatActivity extends AppCompatActivity {
         /**
          * Se obtiene la instancia de los Singleton en el contexto actual.
          */
+        sharedPrefManager = SharedPrefManager.getInstance(this);
         volleySingleton = VolleySingleton.getInstance(this);
         loginData = LoginData.getInstance(this);
 
         mayRequestLocation();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        Intent intent = getIntent();
+
+        if (intent.hasExtra("hiddenMessage")) {
+            Map<String, String> params = new HashMap<String, String>();
+            params.put("type", intent.getStringExtra("pointType"));
+
+            String hiddenMessage = intent.getStringExtra("hiddenMessage");
+
+            sendMessage(
+                    new Message(hiddenMessage, true),
+                    false,
+                    params
+            );
+        }
     }
 
     /**
@@ -172,15 +192,24 @@ public class ChatActivity extends AppCompatActivity {
      *
      * @param message
      */
-    protected void sendMessage(final Message message) {
-        addMessage(message);
+    protected void sendMessage(final Message message, boolean isVisible, Map<String, String> params) {
+        if (isVisible) {
+            addMessage(message);
+        }
 
         HashMap<String, String> requestParams = new HashMap<String, String>();
         requestParams.put("driver", "web");
         requestParams.put("userId", loginData.getUser().getId());
         requestParams.put("message", message.getMessage());
+        requestParams.put("interactive", "true");   // Para que funcione como si fuesen botones
 
-        JsonObjectRequest request = new JsonObjectRequest(baseUrl + "/botman", new JSONObject(requestParams),
+        if (params != null) {
+            for (int i = 0; i < params.size(); i++) {
+                requestParams.putAll(params);
+            }
+        }
+
+        JsonObjectRequest request = new JsonObjectRequest(baseUrl + "/api/botman", new JSONObject(requestParams),
         new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
@@ -199,7 +228,16 @@ public class ChatActivity extends AppCompatActivity {
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("Error: ", error.getMessage());
             }
-        });
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                headers.put("Authorization", "Bearer "
+                        + sharedPrefManager.getString(SharedPrefManager.Key.ACCESS_TOKEN));
+
+                return headers;
+            }
+        };
         volleySingleton.addToRequestQueue(request);
     }
 

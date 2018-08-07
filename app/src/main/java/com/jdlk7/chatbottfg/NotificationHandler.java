@@ -26,19 +26,25 @@ public class NotificationHandler {
         return nHandler;
     }
 
+    public NotificationCompat.Builder makeSimpleNotificationBuilder(Context context, String title,
+                                                                    String text, String channel,
+                                                                    boolean isFixed) {
+        return new NotificationCompat.Builder(context, channel)
+                .setSmallIcon(R.drawable.notification_icon) // notification icon
+                .setContentTitle(title) // main title of the notification
+                .setContentText(text) // notification text
+                .setOngoing(isFixed);
+    }
+
     /**
      * Shows a simple notification
      * @param context aplication context
      */
-    public void createSimpleNotification(Context context, String title, String text, String channel, boolean isFixed) {
-
-        // Building the notification
-        Notification notification = new NotificationCompat.Builder(context, channel)
-                .setSmallIcon(R.drawable.notification_icon) // notification icon
-                .setContentTitle(title) // main title of the notification
-                .setContentText(text) // notification text
-                .setOngoing(isFixed)
-                .build(); // notification intent
+    public void createSimpleNotification(Context context, String title, String text, String channel,
+                                         boolean isFixed) {
+        Notification notification =
+                makeSimpleNotificationBuilder(context, title, text, channel, isFixed)
+                .build();
 
         // mId allows you to update the notification later on.
         mNotificationManager.notify(10, notification);
@@ -46,6 +52,10 @@ public class NotificationHandler {
 
     public void createSimpleNotification(Context context, String title, String text, String channel) {
         createSimpleNotification(context, title, text, channel, false);
+    }
+
+    public void notify(Notification notification) {
+        mNotificationManager.notify(10, notification);
     }
 
 }
