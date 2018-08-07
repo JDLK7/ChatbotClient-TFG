@@ -10,6 +10,10 @@ import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.jdlk7.chatbottfg.entities.Action;
+import com.jdlk7.chatbottfg.entities.ButtonAction;
+import com.jdlk7.chatbottfg.entities.RatingAction;
+
 import java.util.List;
 
 public class MessageListAdapter extends RecyclerView.Adapter {

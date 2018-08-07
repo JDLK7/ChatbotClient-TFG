@@ -1,5 +1,7 @@
 package com.jdlk7.chatbottfg;
 
+import com.jdlk7.chatbottfg.entities.Action;
+
 import java.util.ArrayList;
 import java.util.List;
 

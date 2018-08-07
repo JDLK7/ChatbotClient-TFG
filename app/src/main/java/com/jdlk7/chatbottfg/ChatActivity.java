@@ -24,6 +24,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.jdlk7.chatbottfg.entities.Action;
+import com.jdlk7.chatbottfg.entities.ButtonAction;
+import com.jdlk7.chatbottfg.entities.RatingAction;
 
 import org.json.JSONArray;
 import org.json.JSONException;

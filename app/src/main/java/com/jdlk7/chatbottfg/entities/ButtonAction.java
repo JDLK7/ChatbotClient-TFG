@@ -1,4 +1,4 @@
-package com.jdlk7.chatbottfg;
+package com.jdlk7.chatbottfg.entities;
 
 import android.view.View.OnClickListener;
 
