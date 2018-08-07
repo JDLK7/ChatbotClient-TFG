@@ -54,4 +54,8 @@ public class NotificationHandler {
         createSimpleNotification(context, title, text, channel, false);
     }
 
+    public void notify(Notification notification) {
+        mNotificationManager.notify(10, notification);
+    }
+
 }
