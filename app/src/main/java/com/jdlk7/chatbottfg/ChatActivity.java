@@ -217,7 +217,28 @@ public class ChatActivity extends AppCompatActivity {
                         JSONArray botMessages = response.getJSONArray("messages");
                         for(int i = 0; i < botMessages.length(); i++) {
                             JSONObject botMessage = botMessages.getJSONObject(i);
-                            addMessage(new Message(botMessage.getString("text"), false));
+                            Message message = new Message(botMessage.getString("text"), false);
+
+                            if (botMessage.has("actions")) {
+                                JSONArray actions = botMessage.getJSONArray("actions");
+
+                                for (int j = 0; j < actions.length(); j++) {
+                                    JSONObject messageAction = actions.getJSONObject(j);
+
+                                    final Action action = new Action(messageAction.getString("text"),
+                                            messageAction.getString("value"));
+                                    action.setOnClickAction(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            sendMessage(new Message(action.getValue(), true),
+                                                    false, null);
+                                        }
+                                    });
+                                    message.getActions().add(action);
+                                }
+                            }
+
+                            addMessage(message);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
