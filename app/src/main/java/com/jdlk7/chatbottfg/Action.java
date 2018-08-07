@@ -1,18 +1,10 @@
 package com.jdlk7.chatbottfg;
 
-import android.view.View.OnClickListener;
-
 public class Action {
 
-    private String mText;
-    private String mValue;
-    private String mType = "button";
-    private OnClickListener mOnClickListener = null;
-
-    public Action(String text, String value) {
-        mText = text;
-        mValue = value;
-    }
+    protected String mText;
+    protected String mValue;
+    protected String mType;
 
     public String getText() {
         return mText;
@@ -22,11 +14,7 @@ public class Action {
         return mValue;
     }
 
-    public void setOnClickAction(OnClickListener onClickListener) {
-        mOnClickListener = onClickListener;
-    }
-
-    public OnClickListener getOnClickAction() {
-        return mOnClickListener;
+    public String getType() {
+        return mType;
     }
 }
