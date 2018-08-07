@@ -5,7 +5,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
+
+import com.jdlk7.chatbottfg.entities.Action;
+import com.jdlk7.chatbottfg.entities.ButtonAction;
+import com.jdlk7.chatbottfg.entities.RatingAction;
 
 import java.util.List;
 
@@ -94,16 +101,37 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     private class ReceivedMessageHolder extends RecyclerView.ViewHolder {
         TextView messageText, nameText;
+        LinearLayout messageActions;
 
         ReceivedMessageHolder(View itemView) {
             super(itemView);
             messageText = (TextView) itemView.findViewById(R.id.message_body);
             nameText = (TextView) itemView.findViewById(R.id.message_name);
+            messageActions = (LinearLayout) itemView.findViewById(R.id.message_actions);
         }
 
         void bind(Message message) {
             messageText.setText(message.getMessage());
             nameText.setText("Botman");
+            messageActions.removeAllViews();
+
+            for (Action action : message.getActions()) {
+                String type = action.getType();
+
+                if (type.equals("button")) {
+                    Button actionButton = (Button) LayoutInflater.from(mContext).inflate(
+                            R.layout.their_message_action, messageActions, false);
+                    actionButton.setText(action.getText());
+                    actionButton.setOnClickListener(((ButtonAction) action).getActionListener());
+                    messageActions.addView(actionButton);
+                }
+                else if (type.equals("rating")) {
+                    RatingBar ratingBar = (RatingBar) LayoutInflater.from(mContext).inflate(
+                            R.layout.rating_action, messageActions, false);
+                    ratingBar.setOnRatingBarChangeListener(((RatingAction) action).getActionListener());
+                    messageActions.addView(ratingBar);
+                }
+            }
         }
     }
 }

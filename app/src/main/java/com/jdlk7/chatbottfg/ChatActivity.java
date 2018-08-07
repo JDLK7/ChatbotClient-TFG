@@ -16,6 +16,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 
 import com.android.volley.AuthFailureError;
@@ -23,6 +24,9 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.jdlk7.chatbottfg.entities.Action;
+import com.jdlk7.chatbottfg.entities.ButtonAction;
+import com.jdlk7.chatbottfg.entities.RatingAction;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -217,7 +221,47 @@ public class ChatActivity extends AppCompatActivity {
                         JSONArray botMessages = response.getJSONArray("messages");
                         for(int i = 0; i < botMessages.length(); i++) {
                             JSONObject botMessage = botMessages.getJSONObject(i);
-                            addMessage(new Message(botMessage.getString("text"), false));
+                            Message message = new Message(botMessage.getString("text"), false);
+
+                            if (botMessage.has("actions")) {
+                                JSONArray actions = botMessage.getJSONArray("actions");
+
+                                for (int j = 0; j < actions.length(); j++) {
+                                    JSONObject messageAction = actions.getJSONObject(j);
+
+                                    String type = messageAction.getString("type");
+                                    final Action action;
+
+                                    if (type.equals("button")) {
+                                        action = new ButtonAction(messageAction.getString("text"),
+                                                messageAction.getString("value"));
+                                        ((ButtonAction) action).setActionListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                sendMessage(new Message(action.getValue(), true),
+                                                        false, null);
+                                            }
+                                        });
+                                    }
+                                    else if (type.equals("rating")) {
+                                        action = new RatingAction(messageAction.getString("value"));
+                                        ((RatingAction) action).setActionListener(new RatingBar.OnRatingBarChangeListener() {
+                                            @Override
+                                            public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                                                sendMessage(new Message(Float.toString(ratingBar.getRating()), true),
+                                                        false, null);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        throw new IllegalArgumentException("Tipo de acción indefinido");
+                                    }
+
+                                    message.getActions().add(action);
+                                }
+                            }
+
+                            addMessage(message);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -227,6 +271,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("Error: ", error.getMessage());
+                error.printStackTrace();
             }
         }) {
             @Override
