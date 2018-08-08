@@ -179,7 +179,7 @@ public class ChatActivity extends AppCompatActivity {
 
         if (intent.hasExtra("hiddenMessage")) {
             Map<String, String> params = new HashMap<String, String>();
-            params.put("type", intent.getStringExtra("pointType"));
+            params.put("point_id", intent.getStringExtra("pointId"));
 
             String hiddenMessage = intent.getStringExtra("hiddenMessage");
 

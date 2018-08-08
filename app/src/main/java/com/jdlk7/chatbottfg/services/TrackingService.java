@@ -75,7 +75,7 @@ public class TrackingService extends Service {
                             Context context = getApplicationContext();
                             Intent intent = new Intent(context, ChatActivity.class);
                             intent.putExtra("hiddenMessage", "point_found");
-                            intent.putExtra("pointType", point.getString("type"));
+                            intent.putExtra("pointId", point.getString("id"));
 
                             PendingIntent pendingIntent = PendingIntent.getActivity(context,
                                     0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
