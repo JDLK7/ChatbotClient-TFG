@@ -108,6 +108,7 @@ public class TrackingService extends Service {
                 public Map<String, String> getHeaders() {
                     Map<String, String>  params = new HashMap<String, String>();
                     params.put("Authorization", "Bearer " + sharedPrefManager.getString(SharedPrefManager.Key.ACCESS_TOKEN));
+                    params.put("Accept", "application/json");
 
                     return params;
                 }

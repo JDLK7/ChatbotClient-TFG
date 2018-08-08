@@ -279,6 +279,7 @@ public class ChatActivity extends AppCompatActivity {
                 Map<String, String> headers = new HashMap<String, String>();
                 headers.put("Authorization", "Bearer "
                         + sharedPrefManager.getString(SharedPrefManager.Key.ACCESS_TOKEN));
+                headers.put("Accept", "application/json");
 
                 return headers;
             }

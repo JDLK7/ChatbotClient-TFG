@@ -41,8 +41,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -65,6 +68,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
+
+    /**
+     * Keep track of the token refresh task to ensure we can cancel it if requested.
+     */
+    private TokenRefreshTask mTokenRefreshTask = null;
 
     /**
      * Instancia de SharedPreference.
@@ -94,6 +102,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
          */
         baseUrl = getResources().getString(R.string.base_url);
 
+        /**
+         * Se obtiene la instancia de los Singleton en el contexto actual.
+         */
+        volleySingleton = VolleySingleton.getInstance(this);
+        sharedPrefManager = SharedPrefManager.getInstance(this);
+
+        attemptTokenRefresh();
+
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -120,12 +136,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-
-        /**
-         * Se obtiene la instancia de los Singleton en el contexto actual.
-         */
-        volleySingleton = VolleySingleton.getInstance(this);
-        sharedPrefManager = SharedPrefManager.getInstance(this);
     }
 
     /**
@@ -191,6 +201,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 
+    private void attemptTokenRefresh() {
+        if (mTokenRefreshTask != null) {
+            return;
+        }
+
+        mTokenRefreshTask = new TokenRefreshTask(this);
+        mTokenRefreshTask.execute((Void) null);
+    }
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -340,6 +358,78 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         int ADDRESS = 0;
         int IS_PRIMARY = 1;
+    }
+
+    /**
+     * Representa una tarea asincrona para comprobar si
+     * el token es válido y refrescarlo en dicho caso
+     */
+    public class TokenRefreshTask extends AsyncTask<Void, Void, Boolean> {
+
+        private final Context mContext;
+
+        TokenRefreshTask(Context context) {
+            mContext = context;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            final String accessToken = sharedPrefManager.getString(SharedPrefManager.Key.ACCESS_TOKEN);
+            boolean isAuthenticated = false;
+
+            if (accessToken != null) {
+
+                RequestFuture<JSONObject> future = RequestFuture.newFuture();
+                JsonObjectRequest request = new JsonObjectRequest(JsonObjectRequest.Method.POST,
+                        baseUrl + "/api/auth/refresh", null, future, future)
+                {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Authorization", "Bearer " + accessToken);
+                        headers.put("Accept", "application/json");
+
+                        return headers;
+                    }
+                };
+                volleySingleton.addToRequestQueue(request);
+
+                try {
+                    JSONObject response = future.get(3, TimeUnit.SECONDS);
+
+                    isAuthenticated = response.has("access_token");
+                    if (!isAuthenticated) {
+                        sharedPrefManager.remove(SharedPrefManager.Key.ACCESS_TOKEN);
+                        return false;
+                    }
+
+                    sharedPrefManager.put(SharedPrefManager.Key.ACCESS_TOKEN, response.getString("access_token"));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return isAuthenticated;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mAuthTask = null;
+            showProgress(false);
+
+            if (success) {
+                startActivity(new Intent(mContext, ChatActivity.class));
+                startService(new Intent(mContext, TrackingService.class));
+                finish();
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+            showProgress(false);
+        }
+
     }
 
     /**
