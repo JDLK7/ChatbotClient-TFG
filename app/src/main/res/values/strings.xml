@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">ChatbotTFG</string>
+    <string name="app_welcome">Bienvenid@</string>
     <string name="chat_message_input">Escribir mensaje</string>
 
     <!-- Datos del canal de notificaciones para Android >= 8.0 -->
@@ -7,7 +8,7 @@
     <string name="channel_name">Canal de seguimiento</string>
     <string name="channel_description">Canal de notificación de seguimiento de ubicación</string>
 
-    <string name="base_url">http://192.168.42.210:8000</string>
+    <string name="base_url">http://192.168.0.107:8000</string>
 
     <!-- Strings related to login -->
     <string name="title_activity_login">Iniciar sesión</string>
