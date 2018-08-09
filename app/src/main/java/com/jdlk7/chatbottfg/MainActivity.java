@@ -101,7 +101,7 @@ public class MainActivity extends MyActivity {
             mTokenRefreshTask = null;
 
             if (success) {
-                startActivity(new Intent(mContext, ChatActivity.class));
+                startActivity(new Intent(mContext, MapActivity.class));
                 startService(new Intent(mContext, TrackingService.class));
             } else {
                 startActivity(new Intent(mContext, LoginActivity.class));

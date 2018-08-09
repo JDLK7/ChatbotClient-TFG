@@ -368,7 +368,7 @@ public class LoginActivity extends MyActivity implements LoaderCallbacks<Cursor>
             showProgress(false);
 
             if (success) {
-                startActivity(new Intent(mContext, ChatActivity.class));
+                startActivity(new Intent(mContext, MapActivity.class));
 
                 Intent serviceIntent = new Intent(mContext, TrackingService.class);
                 startService(serviceIntent);
