@@ -40,12 +40,7 @@ import java.util.Map;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 
-public class ChatActivity extends AppCompatActivity {
-
-    /**
-     * La url base del servicio web.
-     */
-    private String baseUrl;
+public class ChatActivity extends MyActivity {
 
     /**
      * Id to identity ACCESS_FINE_LOCATION permission request.
@@ -56,9 +51,6 @@ public class ChatActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private MessageListAdapter messageListAdapter;
     private List<Message> messageList;
-
-    private VolleySingleton volleySingleton;
-    private SharedPrefManager sharedPrefManager;
 
     /**
      * Instancia de LoginData.
@@ -86,11 +78,6 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
-        /**
-         * Se guarda la url base.
-         */
-        baseUrl = getResources().getString(R.string.base_url);
 
         /**
          * Se instancia el listado de mensajes como un ArrayList
@@ -161,11 +148,6 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        /**
-         * Se obtiene la instancia de los Singleton en el contexto actual.
-         */
-        sharedPrefManager = SharedPrefManager.getInstance(this);
-        volleySingleton = VolleySingleton.getInstance(this);
         loginData = LoginData.getInstance(this);
 
         mayRequestLocation();

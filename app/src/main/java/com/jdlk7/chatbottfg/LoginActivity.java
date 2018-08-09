@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
 import android.content.CursorLoader;
@@ -49,12 +48,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
-    /**
-     * La url base del servicio web.
-     */
-    private String baseUrl;
+public class LoginActivity extends MyActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -65,16 +59,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-
-    /**
-     * Instancia de SharedPreference.
-     */
-    private SharedPrefManager sharedPrefManager;
-
-    /**
-     * Instancia de VolleySingleton.
-     */
-    private VolleySingleton volleySingleton;
 
     // UI references.
     private AutoCompleteTextView mEmailView;
@@ -88,13 +72,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
 
         createNotificationChannel();
-
-        // Se guarda la url base.
-        baseUrl = getResources().getString(R.string.base_url);
-
-        // Se obtiene la instancia de los Singleton en el contexto actual.
-        volleySingleton = VolleySingleton.getInstance(this);
-        sharedPrefManager = SharedPrefManager.getInstance(this);
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);

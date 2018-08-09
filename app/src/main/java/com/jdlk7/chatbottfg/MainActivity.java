@@ -16,39 +16,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity {
-
-    /**
-     * La url base del servicio web.
-     */
-    private String baseUrl;
+public class MainActivity extends MyActivity {
 
     /**
      * Keep track of the token refresh task to ensure we can cancel it if requested.
      */
     private TokenRefreshTask mTokenRefreshTask = null;
 
-    /**
-     * Instancia de SharedPreference.
-     */
-    private SharedPrefManager sharedPrefManager;
-
-    /**
-     * Instancia de VolleySingleton.
-     */
-    private VolleySingleton volleySingleton;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.splash_screen);
-
-        // Se guarda la url base.
-        baseUrl = getResources().getString(R.string.base_url);
-
-        // Se obtiene la instancia de los Singleton en el contexto actual.
-        volleySingleton = VolleySingleton.getInstance(this);
-        sharedPrefManager = SharedPrefManager.getInstance(this);
 
         attemptTokenRefresh();
     }
